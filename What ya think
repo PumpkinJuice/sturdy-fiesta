@@ -1,0 +1,89 @@
+       return;
+          }
+          if (settings.get_boolean(key)) {
+ -            this.current_theme_uri = "resource://com/solus-project/budgie/theme.css";
+ +            this.current_theme_uri = "resource://com/solus-project/budgie/theme/theme.css";
+          } else {
+              this.current_theme_uri = null;
+          }
+ @@ -304,10 +304,10 @@ public class PanelManager : DesktopManager
+          raven = new Budgie.Raven(this);
+  
+          this.on_monitors_changed();
+ -        this.current_theme_uri = "resource://com/solus-project/budgie/theme/theme.css";
+  
+          gtksettings.notify["gtk-theme-name"].connect(on_theme_changed);
+ -        on_theme_changed();
+ +
+ +        on_settings_changed("builtin-theme");
+  
+          /* Some applets might want raven */
+          raven.setup_dbus();
+             <property name="visible">True</property>
+          <property name="can_focus">False</property>
+ -        <property name="halign">start</property>
+          <property name="margin_top">4</property>
+          <property name="hexpand">True</property>
+          <property name="label" translatable="yes">Notification Title</property>
+          <property name="wrap">True</property>
+          <property name="wrap_mode">word-char</property>
+          <property name="ellipsize">start</property>
+ +        <property name="max_width_chars">50</property>
+          <property name="xalign">0</property>
+          <attributes>
+            <attribute name="weight" value="semibold"/>
+ @@ -50,10 +50,12 @@
+          <property name="can_focus">False</property>
+          <property name="halign">start</property>
+          <property name="valign">start</property>
+ +        <property name="margin_right">4</property>
+          <property name="hexpand">True</property>
+          <property name="label" translatable="yes">Notification Body..</property>
+          <property name="wrap">True</property>
+          <property name="wrap_mode">word-char</property>
+ +        <property name="max_width_chars">30</property>
+          <property name="xalign">0</property>
+          <style>
+            <class name="dim-label"/>
+ @@ -62,12 +64,14 @@
+        <packing>
+          <property name="left_attach">1</property>
+          <property name="top_attach">1</property>
+ +        <property name="width">2</property>
+        </packing>
+      </child>
+      <child>
+        <object class="GtkLabel" id="label_timestamp">
+          <property name="visible">True</property>
+          <property name="can_focus">False</property>
+ +        <property name="halign">end</property>
+          <property name="margin_right">4</property>
+          <property name="label" translatable="yes">label</property>
+          <style>
+ @@ -79,8 +83,5 @@
+          <property name="top_attach">0</property>
+        </packing>
+      </child>
+ -    <child>
+ -      <placeholder/>
+ -    </child>
+    </template>
+  </interface>
+  
+  int current_icon_size;
+int current_small_icon_size;
+  
+      public bool activate_action(int remote_action)
+      {
+257,10 +258,13 @@ public class Panel : Arc.Toplevel
+      void update_sizes()
+      {
+          int size = icon_sizes[0];
+          unowned string? key = null;
+          unowned Arc.AppletInfo? info = null;
+  
+          for (int i = 1; i < icon_sizes.length; i++) {
+            small_size = icon_sizes[i-1];
+              if (icon_sizes[i] > intended_size - 5) {
+                  break;
+  
